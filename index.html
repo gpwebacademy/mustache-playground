@@ -55,7 +55,12 @@
 
   <script>
     $(function(){
-      var $template, $view, $html, $render, $templateAlert, $viewAlert;
+      var $template
+        , $view
+        , $html
+        , $render
+        , $templateAlert
+        , $viewAlert;
 
       $template      = $('[name="template"]')
       $view          = $('[name="view"]')
@@ -79,7 +84,6 @@
           return
         }
 
-
         try {
           template = $template.getValue()
           html     = Mustache.render(template, view)
@@ -94,13 +98,13 @@
 
       $view = CodeMirror.fromTextArea($view.get(0), {
         mode: 'javascript',
-        // json: true,
+        json: true,
         lineNumbers: true,
         matchBrackets: true,
         indentWithTabs: false,
         tabSize: 2,
         onKeyEvent: render
-      });
+      })
 
       $template = CodeMirror.fromTextArea($template.get(0), {
         mode: 'mustache',
@@ -109,7 +113,7 @@
         indentWithTabs: false,
         tabSize: 2,
         onKeyEvent: render
-      });
+      })
 
       render()
     });
