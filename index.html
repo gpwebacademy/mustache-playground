@@ -51,7 +51,7 @@
   <script src="js/codemirror/xml.js"></script>
   <script src="js/codemirror/mustache.js"></script>
   <script src="js/codemirror/javascript.js"></script>
-  <script src="js/mustache.js"></script>
+  <script src="js/hogan.js"></script>
 
   <script>
     $(function(){
@@ -60,7 +60,8 @@
         , $html
         , $render
         , $templateAlert
-        , $viewAlert;
+        , $viewAlert
+        , template;
 
       $template      = $('[name="template"]')
       $view          = $('[name="view"]')
@@ -71,24 +72,28 @@
       $templateAlert = $('#template-alert')
       $viewAlert     = $('#view-alert')
 
-      function render() {
-        var template, view, html;
-
+      function clearErrors() {
         $templateAlert.addClass('hide')
         $viewAlert.addClass('hide')
+      }
+
+      function compileTemplate() {
+        try {
+          template = Hogan.compile($template.getValue())
+        } catch (err) {
+          $templateAlert.text(err.toString()).removeClass('hide')
+          return
+        }
+      }
+
+      function render() {
+        var view, html;
 
         try {
           view = JSON.parse($view.getValue())
+          html = template.render(view)
         } catch (err) {
           $viewAlert.text(err.toString()).removeClass('hide')
-          return
-        }
-
-        try {
-          template = $template.getValue()
-          html     = Mustache.render(template, view)
-        } catch (err) {
-          $templateAlert.text(err.toString()).removeClass('hide')
           return
         }
 
@@ -103,7 +108,10 @@
         matchBrackets: true,
         indentWithTabs: false,
         tabSize: 2,
-        onKeyEvent: render
+        onKeyEvent: function() {
+          clearErrors()
+          render()
+        }
       })
 
       $template = CodeMirror.fromTextArea($template.get(0), {
@@ -112,9 +120,14 @@
         matchBrackets: true,
         indentWithTabs: false,
         tabSize: 2,
-        onKeyEvent: render
+        onKeyEvent: function() {
+          clearErrors()
+          compileTemplate()
+          render()
+        }
       })
 
+      compileTemplate()
       render()
     });
   </script>
